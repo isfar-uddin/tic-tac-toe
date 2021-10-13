@@ -1,6 +1,11 @@
 import React from "react";
 import Board from "./components/Board/Board";
-import { calculateWinner } from "./utils/calculateWInner";
+import { calculateWinner } from "./utils/calculateWinner";
+import {
+  setLocalStorageItem,
+  getLocalStorageItem,
+} from "./utils/localStorageManage";
+
 import "./App.css";
 
 export default class App extends React.Component {
@@ -22,15 +27,22 @@ export default class App extends React.Component {
       return;
     }
     squares[i] = this.state.xIsNext ? "X" : "O";
-    this.setState({
-      history: history.concat([
-        {
-          squares: squares,
-        },
-      ]),
+    const newHistory = history.concat([
+      {
+        squares: squares,
+      },
+    ]);
+    console.log("history: ", newHistory);
+    // Remember the steps after browser refresh
+    setLocalStorageItem("history", newHistory);
+    setLocalStorageItem("stepNumber", history.length);
+    setLocalStorageItem("xIsNext", !this.state.xIsNext);
+
+    this.setState((prevState) => ({
+      history: newHistory,
       stepNumber: history.length,
-      xIsNext: !this.state.xIsNext,
-    });
+      xIsNext: !prevState.xIsNext,
+    }));
   }
 
   jumpTo(step) {
@@ -38,6 +50,18 @@ export default class App extends React.Component {
       stepNumber: step,
       xIsNext: step % 2 === 0,
     });
+  }
+
+  componentDidMount() {
+    const existingHistory = getLocalStorageItem("history");
+    const xIsNext = getLocalStorageItem("xIsNext");
+    if (existingHistory || xIsNext) {
+      this.setState({
+        history: existingHistory,
+        stepNumber: existingHistory.length - 1,
+        xIsNext: xIsNext,
+      });
+    }
   }
 
   render() {
