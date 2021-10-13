@@ -6,7 +6,7 @@ import {
   getLocalStorageItem,
 } from "./utils/localStorageManage";
 
-import "./App.css";
+import styles from "./app.module.scss";
 
 export default class App extends React.Component {
   state = {
@@ -18,6 +18,22 @@ export default class App extends React.Component {
     stepNumber: 0,
     xIsNext: true,
   };
+
+  clearGameInfo() {
+    localStorage.clear();
+
+    const history = [
+      {
+        squares: Array(9).fill(null),
+      },
+    ];
+
+    this.setState({
+      history,
+      stepNumber: 0,
+      xIsNext: true,
+    });
+  }
 
   handleClick(i) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
@@ -32,7 +48,7 @@ export default class App extends React.Component {
         squares: squares,
       },
     ]);
-    console.log("history: ", newHistory);
+
     // Remember the steps after browser refresh
     setLocalStorageItem("history", newHistory);
     setLocalStorageItem("stepNumber", history.length);
@@ -45,14 +61,13 @@ export default class App extends React.Component {
     }));
   }
 
-  jumpTo(step) {
-    this.setState({
-      stepNumber: step,
-      xIsNext: step % 2 === 0,
-    });
-  }
+  unload = (e) => {
+    e.preventDefault();
+    localStorage.clear();
+  };
 
   componentDidMount() {
+    window.addEventListener("beforeunload", this.unload);
     const existingHistory = getLocalStorageItem("history");
     const xIsNext = getLocalStorageItem("xIsNext");
     if (existingHistory || xIsNext) {
@@ -64,19 +79,14 @@ export default class App extends React.Component {
     }
   }
 
+  componentWillUnmount() {
+    window.removeEventListener("beforeunload", this.unload);
+  }
+
   render() {
     const history = this.state.history;
     const current = history[this.state.stepNumber];
     const winner = calculateWinner(current.squares);
-
-    const moves = history.map((step, move) => {
-      const desc = move ? "Go to move #" + move : "Go to game start";
-      return (
-        <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
-        </li>
-      );
-    });
 
     let status;
     if (winner) {
@@ -86,17 +96,26 @@ export default class App extends React.Component {
     }
 
     return (
-      <div className="game">
-        <div className="game-board">
-          <Board
-            isWinnerSelected={winner}
-            squares={current.squares}
-            onClick={(i) => this.handleClick(i)}
-          />
-        </div>
-        <div className="game-info">
-          <div className={winner ? "winning-info" : ""}>{status}</div>
-          <ol>{moves}</ol>
+      <div className={styles.appWrapper}>
+        <div className={styles.game}>
+          <div className={styles.gameBoard}>
+            <Board
+              isWinnerSelected={winner}
+              squares={current.squares}
+              onClick={(i) => this.handleClick(i)}
+            />
+          </div>
+          <div
+            className={`${styles.gameInfo} ${winner && styles.winnerSelected}`}
+          >
+            {status}
+            <div
+              className={styles.clearBtn}
+              onClick={() => this.clearGameInfo()}
+            >
+              Start Again
+            </div>
+          </div>
         </div>
       </div>
     );

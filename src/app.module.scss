@@ -1,0 +1,37 @@
+.appWrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  .game {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+  .gameInfo {
+    margin-left: 20px;
+    font-size: 20px;
+    font-weight: 600;
+    min-width: 140px;
+  }
+
+  .winnerSelected {
+    color: green;
+  }
+
+  .clearBtn {
+    display: flex;
+    margin-top: 16px;
+    cursor: pointer;
+    color: #ffffff;
+    border-radius: 8px;
+    font-size: 16px;
+    align-items: center;
+    justify-content: center;
+    height: 45px;
+    width: 100px;
+    background-color: red;
+    &:hover {
+      background-color: rgb(214, 25, 25);
+    }
+  }
+}
