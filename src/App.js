@@ -61,13 +61,7 @@ export default class App extends React.Component {
     }));
   }
 
-  unload = (e) => {
-    e.preventDefault();
-    localStorage.clear();
-  };
-
   componentDidMount() {
-    window.addEventListener("beforeunload", this.unload);
     const existingHistory = getLocalStorageItem("history");
     const xIsNext = getLocalStorageItem("xIsNext");
     if (existingHistory || xIsNext) {
@@ -77,10 +71,6 @@ export default class App extends React.Component {
         xIsNext: xIsNext,
       });
     }
-  }
-
-  componentWillUnmount() {
-    window.removeEventListener("beforeunload", this.unload);
   }
 
   render() {
